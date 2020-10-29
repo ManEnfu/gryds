@@ -47,16 +47,20 @@ impl Player {
         dt: f32
     ) {
 
-        self.vel.0 = 0.0;
-        self.vel.1 = 0.0;
+        let mut input_vel_x: f32 = 0.0;
+        let mut input_vel_y: f32 = 0.0;
         
         let (in_x, in_y): (f32, f32) = ctr::get_wasd(window);
         let (walk_x, walk_y): (f32, f32) = (
             self.look_dir.0.cos(),
             self.look_dir.0.sin()
         );
-        self.vel.0 += self.walk_speed * (in_x * walk_x + in_y * walk_y);
-        self.vel.1 += self.walk_speed * (-in_y * walk_x + in_x * walk_y);
+        input_vel_x += self.walk_speed * (in_x * walk_x + in_y * walk_y);
+        input_vel_y += self.walk_speed * (-in_y * walk_x + in_x * walk_y);
+        
+        self.vel.0 = (self.vel.0 * 8.0 + input_vel_x) / 9.0;
+        self.vel.1 = (self.vel.1 * 8.0 + input_vel_y) / 9.0;
+        
         let (mof_x, mof_y): (f64, f64) = 
             ctr::get_cursor_offset(window);
         
@@ -117,5 +121,13 @@ impl Player {
         self.pos.1 += displacement_y;
 
     }
+
+}
+
+pub struct Diamond {
+    pos: (f32, f32, f32)
+}
+
+impl Diamond { 
 
 }

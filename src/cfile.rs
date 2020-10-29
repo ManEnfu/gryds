@@ -15,8 +15,8 @@ impl From<std::io::Error> for Error {
 
 }
 
-pub fn read_as_cstring(
-    path:   &std::path::Path
+pub fn read_as_cstring<P: AsRef<std::path::Path>>(
+    path:   P
 ) -> Result<std::ffi::CString, Error> {
 
     let mut file = std::fs::File::open(path)?;

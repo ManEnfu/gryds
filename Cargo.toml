@@ -11,3 +11,4 @@ glfw = { git = "https://github.com/bjz/glfw-rs.git" }
 gl = "0.10.0"
 nalgebra-glm = "0.5.0"
 rand = "0.7.2"
+scan_fmt = "0.2"

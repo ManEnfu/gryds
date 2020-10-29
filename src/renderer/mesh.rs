@@ -1,5 +1,7 @@
 extern crate gl;
 
+#[allow(dead_code)]
+
 // renderer::mesh::Triplef32
 #[derive(Clone, Copy, Debug)]
 #[repr(C, packed)]

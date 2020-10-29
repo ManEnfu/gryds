@@ -1,6 +1,11 @@
 pub mod shader;
 pub mod mesh;
+pub mod program;
+pub mod meshloader;
+pub mod glmesh;
 
+pub use shader::*;
+pub use program::*;
 
 macro_rules! raw_vertex {
 

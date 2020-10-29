@@ -3,6 +3,7 @@
 extern crate glfw;
 extern crate gl;
 extern crate nalgebra_glm as glm;
+#[macro_use] extern crate scan_fmt;
 
 #[macro_use]
 mod renderer;
@@ -47,22 +48,26 @@ fn main() {
     window.make_current();
 
     // Load shaders
-    let vsh: renderer::shader::Shader = renderer::shader::Shader::source_path(
-        std::path::Path::new("assets/shaders/triangle.vert"),
-        gl::VERTEX_SHADER
-    ).unwrap(); 
+    let vsh = renderer::ShaderBuilder::new(gl::VERTEX_SHADER).unwrap()
+        .source_path("assets/shaders/triangle.vert").unwrap()
+        .compile().unwrap();
 
-    let fsh: renderer::shader::Shader = renderer::shader::Shader::source_path(
-        std::path::Path::new("assets/shaders/triangle.frag"),
-        gl::FRAGMENT_SHADER
-    ).unwrap(); 
+    let fsh = renderer::ShaderBuilder::new(gl::FRAGMENT_SHADER).unwrap()
+        .source_path("assets/shaders/triangle.frag").unwrap()
+        .compile().unwrap();
 
     // Link shaders and use linked program
-    let prog: renderer::shader::Program = 
-        renderer::shader::Program::link_shaders(&[vsh, fsh])
-        .unwrap();
+    let prog = renderer::ProgramBuilder::new()
+        .attach(vsh)
+        .attach(fsh)
+        .link().unwrap();
 
     prog.use_program();
+
+    // Program uniform variables
+    let uniform_mvp = unsafe {
+        prog.get_uniform_loc(std::ffi::CString::new("MVP").expect("NO!"))
+    };
 
     // Default background color
     unsafe { 
@@ -99,6 +104,8 @@ fn main() {
     let mut old_time = glfw.get_time();
     let mut count: u32 = 0;
 
+    println!("Welcome to GRYDS!\n");
+
     // Main loop
     while !window.should_close() {
 
@@ -117,7 +124,6 @@ fn main() {
         unsafe {
             gl::Viewport(0, 0, win_width, win_height);
         }
-
 
         player.accept_input(&mut window, dt);
         player.update_in_maze(&maze, dt);
@@ -140,16 +146,14 @@ fn main() {
             ),
             &glm::vec3(0.0, 0.0, 1.0)
         );
-        let mmodel: glm::Mat4 = glm::diagonal4x4(&(glm::vec4(1.0, 1.0, 1.0, 1.0)));
+        let mmodel: glm::Mat4 = glm::diagonal4x4(
+            &(glm::vec4(1.0, 1.0, 1.0, 1.0))
+        );
         let mvp: glm::Mat4 = mproj * mview * mmodel;
         unsafe {
-            let cs = std::ffi::CString::new("MVP").expect("NO!");
             gl::UniformMatrix4fv(
-                gl::GetUniformLocation(
-                    prog.id(), 
-                    cs.as_bytes_with_nul().as_ptr() as *const gl::types::GLchar
-                ), 
-                1, 
+                uniform_mvp,
+                1,
                 gl::FALSE, 
                 glm::value_ptr(&mvp).as_ptr() as *const gl::types::GLfloat
             );
